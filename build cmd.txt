@@ -1,0 +1,1 @@
+pyinstaller --onefile --windowed --add-data "resources\\assets\\icons\\*;resources\\assets\icons\\" .\main.py

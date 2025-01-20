@@ -11,7 +11,16 @@ from .widgets.menubar import MenuBar
 from .widgets.toolbar import ToolBar
 from .widgets.statusbar import StatusBar
 from .widgets.treeview import TreeView
+import os
+import sys
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 class MainWindow(QMainWindow):
     """
@@ -95,24 +104,23 @@ class MainWindow(QMainWindow):
 
         # Top Toolbar Buttons
         self.topbar.add_button(
-            "Open", "resources/assets/icons/windows/imageres-10.ico", self.open_file)
+            "Open", resource_path("resources\\assets\\icons\\open_folder.ico"), self.open_file)
         self.topbar.add_button(
-            "Save", "resources/assets/icons/windows/shell32-259.ico", self.save_file)
+            "Save", resource_path("resources\\assets\\icons\\save.ico"), self.save_file)
         self.topbar.add_separator()
         self.topbar.add_button(
-            "Exit", "resources/assets/icons/windows/shell32-220.ico", self.exit_app)
-
+            "Exit", resource_path("resources\\assets\\icons\\exit.ico"), self.exit_app)
         # Right Toolbar [PyQt6.QtWidgets.QToolBar]
         self.rightbar = ToolBar(self, orientation=Qt.Orientation.Vertical,
                                 style=Qt.ToolButtonStyle.ToolButtonIconOnly,
                                 icon_size=(24, 24))
-
+        
         # Right Toolbar Buttons
         self.rightbar.add_separator()
         self.rightbar.add_button(
-            "Privacy", "resources/assets/icons/windows/shell32-167.ico", self.privacy_window)
+            "Privacy", resource_path("resources\\assets\\icons\\privacy.ico"), self.privacy_window)
         self.rightbar.add_button(
-            "Settings", "resources/assets/icons/windows/shell32-315.ico", self.settings_window)
+            "Settings", resource_path("resources\\assets\\icons\\settings.ico"), self.settings_window)
 
         self.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.topbar)
         self.addToolBar(Qt.ToolBarArea.RightToolBarArea, self.rightbar)
@@ -209,3 +217,5 @@ class MainWindow(QMainWindow):
         layout.addWidget(flatPushButton)
         layout.addStretch(1)
         self.topRightGroupBox.setLayout(layout)
+
+        
