@@ -1,11 +1,7 @@
 ''' app/ui/main_window.py '''
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (QMainWindow,
-        QApplication, QCheckBox, QComboBox, QDateTimeEdit,
-        QDial, QDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit,
-        QProgressBar, QPushButton, QRadioButton, QScrollBar, QSizePolicy,
-        QSlider, QSpinBox, QStyleFactory, QTableWidget, QTabWidget, QTextEdit,
-        QVBoxLayout, QWidget)
+from PyQt6 import (QtCore, QtWidgets)
+from PyQt6.QtCore import *
+from PyQt6.QtWidgets import *
 from ..utils.config import AppConfig
 from .widgets.menubar import MenuBar
 from .widgets.toolbar import ToolBar
@@ -13,6 +9,8 @@ from .widgets.statusbar import StatusBar
 from .widgets.treeview import TreeView
 import os
 import sys
+# from PySide6.QtCore import QTime, QTimer, Slot
+# from PySide6.QtWidgets import QLCDNumber
 
 def resource_path(relative_path):
     try:
@@ -55,6 +53,7 @@ class MainWindow(QMainWindow):
 
         disableWidgetsCheckBox = QCheckBox("&Disable widgets")
         
+        # self.createTopGroupBox()
         self.createTopLeftGroupBox()
         self.createTopRightGroupBox()
         
@@ -62,6 +61,7 @@ class MainWindow(QMainWindow):
 
         styleComboBox.textActivated.connect(self.changeStyle)
         self.useStylePaletteCheckBox.toggled.connect(self.changePalette)
+        # disableWidgetsCheckBox.toggled.connect(self.topGroupBox.setDisabled)
         disableWidgetsCheckBox.toggled.connect(self.topLeftGroupBox.setDisabled)
         disableWidgetsCheckBox.toggled.connect(self.topRightGroupBox.setDisabled)
         # disableWidgetsCheckBox.toggled.connect(self.bottomLeftTabWidget.setDisabled)
@@ -179,43 +179,81 @@ class MainWindow(QMainWindow):
             QApplication.setPalette(self.originalPalette)
 
     def createTopLeftGroupBox(self):
-        self.topLeftGroupBox = QGroupBox("Group 1")
+        self.topLeftGroupBox = QGroupBox("Countdown")
 
-        radioButton1 = QRadioButton("Radio button 1")
-        radioButton2 = QRadioButton("Radio button 2")
-        radioButton3 = QRadioButton("Radio button 3")
-        radioButton1.setChecked(True)
-
-        checkBox = QCheckBox("Tri-state check box")
-        checkBox.setTristate(True)
-        checkBox.setCheckState(Qt.CheckState.PartiallyChecked)
+        dateedit = DateEdit()
+        timeedit = TimeEdit()
 
         layout = QVBoxLayout()
-        layout.addWidget(radioButton1)
-        layout.addWidget(radioButton2)
-        layout.addWidget(radioButton3)
-        layout.addWidget(checkBox)
-        layout.addStretch(1)
+        layout.addWidget(dateedit)
+        layout.addWidget(timeedit)
+
         self.topLeftGroupBox.setLayout(layout)
 
     def createTopRightGroupBox(self):
-        self.topRightGroupBox = QGroupBox("Group 2")
+        self.topRightGroupBox = QGroupBox("Current time")
 
-        defaultPushButton = QPushButton("Default Push Button")
-        defaultPushButton.setDefault(True)
-
-        togglePushButton = QPushButton("Toggle Push Button")
-        togglePushButton.setCheckable(True)
-        togglePushButton.setChecked(True)
-
-        flatPushButton = QPushButton("Flat Push Button")
-        flatPushButton.setFlat(True)
+        digitalcalendar = DigitalCalendar()
+        digitalclock = DigitalClock()
 
         layout = QVBoxLayout()
-        layout.addWidget(defaultPushButton)
-        layout.addWidget(togglePushButton)
-        layout.addWidget(flatPushButton)
-        layout.addStretch(1)
+        layout.addWidget(digitalcalendar)
+        layout.addWidget(digitalclock)
         self.topRightGroupBox.setLayout(layout)
-
         
+class DateEdit(QtWidgets.QDateEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent, calendarPopup=True)
+        self._today_button = QtWidgets.QPushButton(self.tr("Today"))
+        self._today_button.clicked.connect(self._update_today)
+        self.calendarWidget().layout().addWidget(self._today_button)
+        self.setDateTime(QtCore.QDateTime.currentDateTime())
+        
+    @QtCore.pyqtSlot()
+    def _update_today(self):
+        self._today_button.clearFocus()
+        today = QtCore.QDate.currentDate()
+        self.calendarWidget().setSelectedDate(today)
+
+class TimeEdit(QtWidgets.QTimeEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent, )
+
+class DigitalClock(QLCDNumber):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setDigitCount(8)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.show_time)
+        self.timer.start(1000)
+        self.show_time()
+
+        self.resize(250, 60)
+
+    def show_time(self):
+        time = QTime.currentTime()
+        text = time.toString("hh:mm:ss")
+
+        # Blinking effect
+        if (time.second() % 2) == 0:
+            text = text.replace(":", " ")
+
+        self.display(text)
+
+class DigitalCalendar(QLCDNumber):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setDigitCount(10)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.show_date)
+        self.timer.start(1000)
+        self.show_date()
+
+        self.resize(250, 60)
+
+    def show_date(self):
+        date = QDateTime.currentDateTime()
+        text = date.toString("dd-MM-yyyy")
+        self.display(text)

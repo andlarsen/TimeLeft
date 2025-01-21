@@ -4,6 +4,6 @@ rmdir /s /q "dist"
 
 :: Run pyinstaller
 pyinstaller --noconfirm --log-level=WARN ^
-    --onefile --nowindow ^
+    --onefile --windowed ^
     --add-data="resources\\assets\\icons\\*:resources\\assets\icons\\" ^
     main.py
