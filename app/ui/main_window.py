@@ -7,10 +7,12 @@ from .widgets.menubar import MenuBar
 from .widgets.toolbar import ToolBar
 from .widgets.statusbar import StatusBar
 from .widgets.treeview import TreeView
+from .widgets.digitalClock import DigitalClock
+from .widgets.digitalCalendar import DigitalCalendar
+from .widgets.dateEdit import DateEdit
+from .widgets.timeEdit import TimeEdit
 import os
 import sys
-# from PySide6.QtCore import QTime, QTimer, Slot
-# from PySide6.QtWidgets import QLCDNumber
 
 def resource_path(relative_path):
     try:
@@ -35,32 +37,34 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(AppConfig.APP_NAME)
         self.setGeometry(100, 100, 800, 600)
 
-        self.central_widget = QWidget(self)
-        self.setCentralWidget(self.central_widget)
+        # Styling
         self.originalPalette = QApplication.palette()
-
         self.useStylePaletteCheckBox = QCheckBox("&Use style's standard palette")
         self.useStylePaletteCheckBox.setChecked(True)
         self.changeStyle('Fusion')
 
-        
-        # self.createTopGroupBox()
+        # Create main_widget
+        self.main_widget = QWidget(self)
+        self.setCentralWidget(self.main_widget)
+
+        # Create widgets for main_layout
         self.createTopLeftGroupBox()
         self.createTopRightGroupBox()
         self.createProgressBar()
         self.createCountdown()
         
-        self.mainLayout = QGridLayout()
-        self.mainLayout.addWidget(self.topLeftGroupBox, 0, 0)
-        self.mainLayout.addWidget(self.topRightGroupBox, 0, 1)
-        self.mainLayout.addWidget(self.progressBar, 1, 0,1,2)
-        self.mainLayout.addWidget(self.Countdown, 2, 0,1,2)
+        # Add widgets to the main_layout
+        self.main_layout = QGridLayout()
+        self.main_layout.addWidget(self.topLeftGroupBox, 0, 0)
+        self.main_layout.addWidget(self.topRightGroupBox, 0, 1)
+        self.main_layout.addWidget(self.progressBar, 1, 0,1,2)
+        self.main_layout.addWidget(self.Countdown, 2, 0,1,2)
     
-        self.mainLayout.setRowStretch(0, 1)
-        self.mainLayout.setRowStretch(1, 1)
-        self.mainLayout.setColumnStretch(0, 1)
-        self.mainLayout.setColumnStretch(1, 1)
-        self.central_widget.setLayout(self.mainLayout)
+        self.main_layout.setRowStretch(0, 1)
+        self.main_layout.setRowStretch(1, 1)
+        self.main_layout.setColumnStretch(0, 1)
+        self.main_layout.setColumnStretch(1, 1)
+        self.main_widget.setLayout(self.main_layout)
 
         self.create_toolbars()
         self.setMenuBar(MenuBar(self))
@@ -160,7 +164,7 @@ class MainWindow(QMainWindow):
     def createTopLeftGroupBox(self):
         self.topLeftGroupBox = QGroupBox()
 
-        parent_layout = QVBoxLayout()
+        topleft_layout = QVBoxLayout()
 
         # Define "Set date" group box
         setDateBox = QGroupBox("Set date")      
@@ -242,9 +246,9 @@ class MainWindow(QMainWindow):
         setTimeBox.setLayout(timeBoxLayout)
 
         # Building parent layout
-        parent_layout.addWidget(setDateBox)
-        parent_layout.addWidget(setTimeBox)
-        self.topLeftGroupBox.setLayout(parent_layout)
+        topleft_layout.addWidget(setDateBox)
+        topleft_layout.addWidget(setTimeBox)
+        self.topLeftGroupBox.setLayout(topleft_layout)
         
     def createTopRightGroupBox(self):
         self.topRightGroupBox = QGroupBox()
@@ -252,10 +256,10 @@ class MainWindow(QMainWindow):
         digitalcalendar = DigitalCalendar()
         digitalclock = DigitalClock()
 
-        layout = QVBoxLayout()
-        layout.addWidget(digitalcalendar)
-        layout.addWidget(digitalclock)
-        self.topRightGroupBox.setLayout(layout)
+        topright_layout = QVBoxLayout()
+        topright_layout.addWidget(digitalcalendar)
+        topright_layout.addWidget(digitalclock)
+        self.topRightGroupBox.setLayout(topright_layout)
 
     def createProgressBar(self):
         self.progressBar = QProgressBar(self)
@@ -265,60 +269,3 @@ class MainWindow(QMainWindow):
         self.Countdown = DigitalClock()
         self.Countdown.setMinimumHeight(300)
 
-
-class DateEdit(QtWidgets.QDateEdit):
-    def __init__(self, parent=None):
-        super().__init__(parent, calendarPopup=True)
-        self._today_button = QtWidgets.QPushButton(self.tr("Today"))
-        self._today_button.clicked.connect(self._update_today)
-        self.calendarWidget().layout().addWidget(self._today_button)
-        self.setDateTime(QtCore.QDateTime.currentDateTime())
-        
-    @QtCore.pyqtSlot()
-    def _update_today(self):
-        self._today_button.clearFocus()
-        today = QtCore.QDate.currentDate()
-        self.calendarWidget().setSelectedDate(today)
-
-class TimeEdit(QtWidgets.QTimeEdit):
-    def __init__(self, parent=None):
-        super().__init__(parent, )
-
-class DigitalClock(QLCDNumber):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setDigitCount(8)
-
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.show_time)
-        self.timer.start(1000)
-        self.show_time()
-
-        self.resize(250, 60)
-
-    def show_time(self):
-        time = QTime.currentTime()
-        text = time.toString("hh:mm:ss")
-
-        # Blinking effect
-        if (time.second() % 2) == 0:
-            text = text.replace(":", " ")
-
-        self.display(text)
-
-class DigitalCalendar(QLCDNumber):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setDigitCount(10)
-
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.show_date)
-        self.timer.start(1000)
-        self.show_date()
-
-        self.resize(250, 60)
-
-    def show_date(self):
-        date = QDateTime.currentDateTime()
-        text = date.toString("dd-MM-yyyy")
-        self.display(text)
