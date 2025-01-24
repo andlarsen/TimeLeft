@@ -33,6 +33,9 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
 
+        # Globals
+        self.startCounter = False
+
         # Window-Settings
         self.setWindowTitle(AppConfig.APP_NAME)
         self.setGeometry(100, 100, 800, 600)
@@ -83,22 +86,36 @@ class MainWindow(QMainWindow):
                               icon_size=(36, 36))
         # Top Toolbar Buttons
         self.topbar.add_button(
-            "Open", resource_path("resources\\assets\\icons\\open_folder.ico"), self.open_file)
+            "Open", 
+            resource_path("resources\\assets\\icons\\open_folder.ico"), 
+            self.open_file)
         self.topbar.add_button(
-            "Save", resource_path("resources\\assets\\icons\\save.ico"), self.save_file)
+            "Save", 
+            resource_path("resources\\assets\\icons\\save.ico"),  
+            self.save_file)
+        self.topbar.addSeparator()
+        self.topbar.add_togglebutton(
+            "Start", 
+            resource_path("resources\\assets\\icons\\start.png"), 
+            resource_path("resources\\assets\\icons\\stop.png"), 
+            self.start_counter)
+        self.topbar.add_togglebutton(
+            "Alarm", 
+            resource_path("resources\\assets\\icons\\bell_off.png"), 
+            resource_path("resources\\assets\\icons\\bell_on.png"), 
+            self.enable_alarm)
         self.topbar.addSeparator()
         self.topbar.add_button(
-            "Start", resource_path("resources\\assets\\icons\\start.png"), self.start_counter)
-        self.topbar.add_button(
-            "Alarm", resource_path("resources\\assets\\icons\\bell_on.png"), self.enable_alarm)
-        self.topbar.addSeparator()
-        self.topbar.add_button(
-            "Settings", resource_path("resources\\assets\\icons\\settings.ico"), self.settings_window)
+            "Settings", 
+            resource_path("resources\\assets\\icons\\settings.ico"), 
+            self.settings_window)
         self.topbar.addSeparator()
         self.topbar.add_separator()
         self.topbar.addSeparator()
         self.topbar.add_button(
-            "Exit", resource_path("resources\\assets\\icons\\exit.ico"), self.exit_app)
+            "Exit", 
+            resource_path("resources\\assets\\icons\\exit.ico"), 
+            self.exit_app)
         
         self.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.topbar)
 
@@ -142,7 +159,7 @@ class MainWindow(QMainWindow):
         """
         Event handler for the "Alarm" button. Enables/disables the alarm, which must change icon.
         """
-        print("Counting down...")
+        self.startCounter = not self.startCounter
 
     def enable_alarm(self) -> None:
         """
