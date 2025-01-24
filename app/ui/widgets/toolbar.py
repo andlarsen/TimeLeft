@@ -26,7 +26,7 @@ class ToolBar(QToolBar):
         self.setToolButtonStyle(style)
         self.setIconSize(QSize(icon_size[0], icon_size[1]))
 
-    def add_button(self, text: str, icon: str, trigger_action) -> None:
+    def add_button(self, text: str, icon: str, trigger_action, disable: bool) -> None:
         """
         Add a button to the toolbar.
 
@@ -38,8 +38,9 @@ class ToolBar(QToolBar):
         self.actions_call[text] = QAction(QIcon(icon), text, self)
         self.actions_call[text].triggered.connect(trigger_action)
         self.addAction(self.actions_call[text])
+        self.actions_call[text].setDisabled(disable)
 
-    def add_togglebutton(self, text: str, icon_disabled: str, icon_enabled: str, trigger_action) -> None:
+    def add_togglebutton(self, text: str, icon_disabled: str, icon_enabled: str, trigger_action, disable: bool) -> None:
         """
         Add a toggle button to the toolbar.
 
@@ -57,6 +58,7 @@ class ToolBar(QToolBar):
         self.addAction(self.actions_call[text])
         self.actions_call[text].setCheckable(True)
         self.actions_call[text].setIcon(icon)
+        self.actions_call[text].setDisabled(disable)
 
     def add_separator(self) -> None:
         """
@@ -66,3 +68,9 @@ class ToolBar(QToolBar):
         separator.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.addWidget(separator)
+
+    def disable_button(self, text: str, disable: bool) -> None:
+        """
+        Disable the toolbar button.
+        """
+        self.actions_call[text].setDisabled(disable)

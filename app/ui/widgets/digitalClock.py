@@ -1,6 +1,6 @@
 '''' app/ui/widgets/digitalClock.py '''
 from PyQt6.QtWidgets import QLCDNumber
-from PyQt6.QtCore import QTime, QTimer
+from PyQt6.QtCore import QDateTime, QTimer
 
 class DigitalClock(QLCDNumber):
     def __init__(self, parent=None):
@@ -15,11 +15,11 @@ class DigitalClock(QLCDNumber):
         self.resize(250, 60)
 
     def show_time(self):
-        time = QTime.currentTime()
+        time = QDateTime.currentDateTime()
         text = time.toString("hh:mm:ss")
 
-        # Blinking effect
-        if (time.second() % 2) == 0:
-            text = text.replace(":", " ")
+        # # Blinking effect
+        # if (time.second() % 2) == 0:
+        #     text = text.replace(":", " ")
 
         self.display(text)
