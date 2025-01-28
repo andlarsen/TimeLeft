@@ -1,6 +1,10 @@
 :: Clear old build files
-rmdir /s /q "build"
-rmdir /s /q "dist"
+if exist build\ (
+    rmdir /s /q "build"
+)
+if exist dist\ (
+    rmdir /s /q "dist"
+)
 
 :: Run pyinstaller
 pyinstaller --noconfirm --log-level=WARN ^
